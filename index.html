@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<title>OLED 128x32 HEX 변환</title>
+<style>
+  #canvas {
+    image-rendering: pixelated;
+    border: 1px solid black;
+    cursor: crosshair;
+    width: 512px;
+    height: 128px;
+  }
+  #hexOutput {
+    white-space: pre-wrap;
+    font-family: monospace;
+    background: #f0f0f0;
+    padding: 10px;
+    margin-top: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+</style>
+</head>
+<body>
+
+<h2>OLED 128x32 픽셀</h2>
+
+<canvas id="canvas" width="128" height="32"></canvas><br/>
+
+<button onclick="clearCanvas()">초기화</button>
+<button onclick="generateHex()">HEX 변환</button>
+
+<h3>HEX 코드</h3>
+<pre id="hexOutput"></pre>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const width = canvas.width;
+  const height = canvas.height;
+
+  ctx.fillStyle = 'white';
+  ctx.fillRect(0, 0, width, height);
+
+  let drawing = false;
+
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
+    drawPixel(e);
+  });
+
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseleave', () => drawing = false);
+  canvas.addEventListener('mousemove', e => {
+    if (drawing) drawPixel(e);
+  });
+
+  function drawPixel(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.floor((e.clientX - rect.left) * (width / rect.width));
+    const y = Math.floor((e.clientY - rect.top) * (height / rect.height));
+
+    ctx.fillStyle = 'black';
+    ctx.fillRect(x, y, 1, 1);
+  }
+
+  function clearCanvas() {
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, width, height);
+    document.getElementById('hexOutput').textContent = '';
+  }
+
+  function generateHex() {
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const data = imageData.data;
+  const pages = height / 8; // 32 / 8 = 4
+
+  let hexArray = [];
+
+for (let page = 0; page < pages; page++) {
+  for (let x = 0; x < width; x++) {
+    let byte = 0;
+    for (let bit = 0; bit < 8; bit++) {
+      const y = page * 8 + bit;
+      const idx = (y * width + x) * 4;
+
+      const r = data[idx];
+      const g = data[idx + 1];
+      const b = data[idx + 2];
+      const avg = (r + g + b) / 3;
+      const pixelOn = avg < 128 ? 1 : 0;
+
+      byte |= (pixelOn << bit);
+    }
+    hexArray.push(byte);
+  }
+}
+
+let hexString = '';
+
+  for (let i = 0; i < hexArray.length; i++) {
+    if (i % 16 === 0) hexString += '  ';
+    hexString += '0x' + hexArray[i].toString(16).padStart(2, '0');
+    if (i !== hexArray.length - 1) hexString += ', ';
+    if ((i + 1) % 16 === 0) hexString += '\n';
+  }
+
+  document.getElementById('hexOutput').textContent = hexString;
+}
+
+
+
+</script>
+
+</body>
+</html>
