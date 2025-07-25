@@ -76,7 +76,8 @@
     const y = Math.floor((e.clientY - rect.top) * (height / rect.height));
     
     if(eraserMode){
-      ctx.clearRect(x, y, 1, 1);
+      ctx.fillStyle = 'white';
+      ctx.fillRect(x, y, 1, 1);
    } else {
     ctx.fillStyle = 'black';
     ctx.fillRect(x, y, 1, 1);
