@@ -26,6 +26,11 @@
 
 <h2>OLED 128x32 픽셀</h2>
 
+<label>Width: <input id="oledWidth" type="number" value="128"></label>
+<label>Height: <input id="oledHeight" type="number" value="32"></label>
+<button onclick="applySize()">크기 적용</button>
+<br/><br/>
+
 <canvas id="canvas" width="128" height="32"></canvas><br/>
 
 <button onclick="toggleEraserMode()">
@@ -33,8 +38,10 @@
 </button>
 <button onclick="clearCanvas()">초기화</button>
 <button onclick="generateHex()">HEX 변환</button>
+<button onclick="decodeHex()">HEX 디코딩</button>
 
 <h3>HEX 코드</h3>
+<textarea id="hexInput" rows="5" cols="80"></textarea>
 <pre id="hexOutput"></pre>
 
 <script>
@@ -59,7 +66,15 @@
   canvas.addEventListener('mousemove', e => {
     if (drawing) drawPixel(e);
   });
-
+  
+   function applySize() {
+    width = parseInt(document.getElementById('oledWidth').value);
+    height = parseInt(document.getElementById('oledHeight').value);
+    canvas.width = width;
+    canvas.height = height;
+    ctx = canvas.getContext('2d');
+    clearCanvas();
+  }
   function toggleEraserMode(){
    eraserMode = !eraserMode;
    updateEraserStatus();
@@ -128,7 +143,36 @@ let hexString = '';
   document.getElementById('hexOutput').textContent = hexString;
 }
 
+function decodeHex() {
+    const input = document.getElementById('hexInput').value;
+    const hexArray = input.match(/0x[0-9a-fA-F]{2}/g)?.map(v => parseInt(v, 16)) || [];
 
+    if (hexArray.length === 0) {
+      alert("HEX 배열을 입력하세요!");
+      return;
+    }
+
+    const pages = height / 8;
+    const imageData = ctx.createImageData(width, height);
+
+    for (let page = 0; page < pages; page++) {
+      for (let x = 0; x < width; x++) {
+        const byte = hexArray[page * width + x];
+        for (let bit = 0; bit < 8; bit++) {
+          const y = page * 8 + bit;
+          const idx = (y * width + x) * 4;
+          const pixelOn = (byte >> bit) & 1;
+          const color = pixelOn ? 0 : 255;
+          imageData.data[idx] = color;
+          imageData.data[idx+1] = color;
+          imageData.data[idx+2] = color;
+          imageData.data[idx+3] = 255;
+        }
+      }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+  }
 
 </script>
 
