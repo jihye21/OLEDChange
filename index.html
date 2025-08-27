@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<title>LED 128x32 HEX 변환</title>
+<title>PixelHexLab</title>
 <style>
   #canvas {
     image-rendering: pixelated;
@@ -24,7 +24,7 @@
 </head>
 <body>
 
-<h2>LED 128x32 픽셀</h2>
+<h2>PixelHexLab</h2>
 
 <label>Width: <input id="oledWidth" type="number" value="128"></label>
 <label>Height: <input id="oledHeight" type="number" value="32"></label>
@@ -135,7 +135,7 @@ function applySize() {
       let byte = 0;
       for (let bit = 0; bit < pageHeight; bit++) {
         const y = page * pageHeight + bit;
-        if (y >= height) continue; // 범위 벗어나면 건너뜀
+        if (y >= height) continue;
 
         const idx = (y * width + x) * 4;
         const r = data[idx];
