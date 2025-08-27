@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<title>OLED 128x32 HEX 변환</title>
+<title>LED 128x32 HEX 변환</title>
 <style>
   #canvas {
     image-rendering: pixelated;
@@ -24,7 +24,7 @@
 </head>
 <body>
 
-<h2>OLED 128x32 픽셀</h2>
+<h2>LED 128x32 픽셀</h2>
 
 <label>Width: <input id="oledWidth" type="number" value="128"></label>
 <label>Height: <input id="oledHeight" type="number" value="32"></label>
@@ -169,7 +169,7 @@ function decodeHex() {
     const hexArray = input.match(/0x[0-9a-fA-F]{2}/g)?.map(v => parseInt(v, 16)) || [];
 
     if (hexArray.length === 0) {
-      alert("값을 입력하세요!");
+      alert("값을 입력하세요");
       return;
     }
 
