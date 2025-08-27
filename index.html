@@ -47,9 +47,10 @@
 
 <script>
   const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
+  
   let width = canvas.width;
   let height = canvas.height;
+let ctx = canvas.getContext('2d');
 
   ctx.fillStyle = 'white';
   ctx.fillRect(0, 0, width, height);
@@ -96,8 +97,12 @@ function applySize() {
 
   function drawPixel(e) {
     const rect = canvas.getBoundingClientRect();
-    const x = Math.floor((e.clientX - rect.left) * (width / rect.width));
-    const y = Math.floor((e.clientY - rect.top) * (height / rect.height));
+
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+
+    const x = Math.floor((e.clientX - rect.left) * scaleX);
+    const y = Math.floor((e.clientY - rect.top) * scaleY);
     
     if(eraserMode){
       ctx.fillStyle = 'white';
@@ -115,33 +120,38 @@ function applySize() {
   }
 
   function generateHex() {
+  const width = canvas.width;
+  const height = canvas.height;
+  const pageHeight = 8;
+  const pages = Math.ceil(height / pageHeight);
+
   const imageData = ctx.getImageData(0, 0, width, height);
   const data = imageData.data;
-  const pages = height / 8; // 32 / 8 = 4
 
   let hexArray = [];
 
-for (let page = 0; page < pages; page++) {
-  for (let x = 0; x < width; x++) {
-    let byte = 0;
-    for (let bit = 0; bit < 8; bit++) {
-      const y = page * 8 + bit;
-      const idx = (y * width + x) * 4;
+  for (let page = 0; page < pages; page++) {
+    for (let x = 0; x < width; x++) {
+      let byte = 0;
+      for (let bit = 0; bit < pageHeight; bit++) {
+        const y = page * pageHeight + bit;
+        if (y >= height) continue; // 범위 벗어나면 건너뜀
 
-      const r = data[idx];
-      const g = data[idx + 1];
-      const b = data[idx + 2];
-      const avg = (r + g + b) / 3;
-      const pixelOn = avg < 128 ? 1 : 0;
+        const idx = (y * width + x) * 4;
+        const r = data[idx];
+        const g = data[idx + 1];
+        const b = data[idx + 2];
+        const avg = (r + g + b) / 3;
+        const pixelOn = avg < 128 ? 1 : 0;
 
-      byte |= (pixelOn << bit);
+        byte |= (pixelOn << bit);
+      }
+      hexArray.push(byte);
     }
-    hexArray.push(byte);
   }
-}
 
-let hexString = '';
-
+  // HEX 문자열 생성
+  let hexString = '';
   for (let i = 0; i < hexArray.length; i++) {
     if (i % 16 === 0) hexString += '  ';
     hexString += '0x' + hexArray[i].toString(16).padStart(2, '0');
@@ -189,7 +199,7 @@ const input = document.getElementById('hexInput').value;
 
   if (hexArray.length === 0) { alert("값을 입력하세요!"); return; }
 
-  const pageHeight = 8;
+  const pageHeight = 8; // 한 페이지 세로 픽셀
   const width = parseInt(document.getElementById('oledWidth').value);
   const pages = Math.ceil(hexArray.length / width);
   const height = pages * pageHeight;
