@@ -163,6 +163,8 @@ function applySize() {
 }
 
 function decodeHex() {
+    const width = canvas.width;
+    const height = canvas.height;
     const input = document.getElementById('hexInput').value;
     const hexArray = input.match(/0x[0-9a-fA-F]{2}/g)?.map(v => parseInt(v, 16)) || [];
 
@@ -193,45 +195,6 @@ for (let x = 0; x < width; x++) {
     ctx.putImageData(imageData, 0, 0);
   }
 
-function reorderCanvas() {
-const input = document.getElementById('hexInput').value;
-  const hexArray = input.match(/0x[0-9a-fA-F]{2}/g)?.map(v => parseInt(v,16)) || [];
-
-  if (hexArray.length === 0) { alert("값을 입력하세요!"); return; }
-
-  const pageHeight = 8; // 한 페이지 세로 픽셀
-  const width = parseInt(document.getElementById('oledWidth').value);
-  const pages = Math.ceil(hexArray.length / width);
-  const height = pages * pageHeight;
-
-  // 캔버스 크기 자동 조정
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-
-  const imageData = ctx.createImageData(width, height);
-
-  for (let page = 0; page < pages; page++) {
-    for (let x = 0; x < width; x++) {
-      const byte = hexArray[page * width + x] || 0;
-      for (let bit = 0; bit < 8; bit++) {
-        const y = page * pageHeight + bit;
-        if (y >= height) continue;
-
-        const idx = (y * width + x) * 4;
-        const pixelOn = (byte >> bit) & 1;
-        const color = pixelOn ? 0 : 255;
-
-        imageData.data[idx] = color;
-        imageData.data[idx + 1] = color;
-        imageData.data[idx + 2] = color;
-        imageData.data[idx + 3] = 255;
-      }
-    }
-  }
-
-  ctx.putImageData(imageData, 0, 0);
-}
 </script>
 
 </body>
