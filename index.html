@@ -39,7 +39,6 @@
 <button onclick="clearCanvas()">초기화</button>
 <button onclick="generateHex()">HEX 변환</button>
 <button onclick="decodeHex()">HEX 디코딩</button>
-<button onclick="reorderCanvas()">배열 순서 변경</button>
 
 <h3>HEX 코드</h3>
 <textarea id="hexInput" rows="5" cols="80"></textarea>
@@ -117,6 +116,7 @@ function applySize() {
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, width, height);
     document.getElementById('hexOutput').textContent = '';
+    document.getElementById('hexInput').value ='';
   }
 
   function generateHex() {
